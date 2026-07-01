@@ -14,6 +14,8 @@ import {
   Prodi,
   updateMahasiswa,
 } from "@/lib/api";
+import { getToken, getUser, logout } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 export default function MahasiswaPage() {
   const [mahasiswa, setMahasiswa] = useState<Mahasiswa[]>([]);
@@ -22,6 +24,20 @@ export default function MahasiswaPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  const [user, setUser] = useState<any>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = getToken();
+    if (!token) {
+      router.push("/login");
+    } else {
+      setUser(getUser());
+      setCheckingAuth(false);
+    }
+  }, [router]);
 
   // Search, Filter, Pagination States
   const [search, setSearch] = useState("");
@@ -65,13 +81,17 @@ export default function MahasiswaPage() {
   };
 
   useEffect(() => {
-    loadProdi();
-  }, []);
+    if (!checkingAuth) {
+      loadProdi();
+    }
+  }, [checkingAuth]);
 
   // Fetch mahasiswa when filters or page changes
   useEffect(() => {
-    loadMahasiswa();
-  }, [page, prodiFilter, search]);
+    if (!checkingAuth) {
+      loadMahasiswa();
+    }
+  }, [page, prodiFilter, search, checkingAuth]);
 
   const handleSubmit = async (payload: MahasiswaInput) => {
     try {
@@ -106,6 +126,14 @@ export default function MahasiswaPage() {
     }
   };
 
+  if (checkingAuth) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", fontFamily: "sans-serif" }}>
+        <p>Memeriksa autentikasi...</p>
+      </div>
+    );
+  }
+
   return (
     <main className="container" style={{ paddingBottom: "40px" }}>
       <div className="header">
@@ -114,9 +142,20 @@ export default function MahasiswaPage() {
           <p>Frontend Next.js yang terhubung ke backend Express.js.</p>
         </div>
 
-        <Link href="/">
-          <button className="btn-secondary">Kembali</button>
-        </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          {user && (
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontWeight: 600, fontSize: "14px", color: "#0f172a" }}>{user.name}</div>
+              <div style={{ fontSize: "12px", color: "#64748b", textTransform: "capitalize" }}>{user.role}</div>
+            </div>
+          )}
+          <button className="btn-danger" onClick={logout} style={{ padding: "10px 16px", fontSize: "14px" }}>
+            Logout
+          </button>
+          <Link href="/">
+            <button className="btn-secondary" style={{ padding: "10px 16px", fontSize: "14px" }}>Kembali</button>
+          </Link>
+        </div>
       </div>
 
       {message && <div className="message">{message}</div>}

@@ -36,3 +36,14 @@ INSERT INTO prodi (nama_prodi) VALUES
 INSERT INTO mahasiswa (nim, nama, prodi_id, angkatan) VALUES 
 ('2201001', 'Ahmad Fauzi', 1, 2022),
 ('2201002', 'Budi Santoso', 2, 2022);
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  role ENUM('admin', 'operator', 'viewer') NOT NULL DEFAULT 'viewer',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+

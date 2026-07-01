@@ -1,3 +1,5 @@
+import { getToken } from "./auth";
+
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
@@ -63,8 +65,10 @@ export async function getMahasiswa(params?: {
   if (params?.search) query.append("search", params.search);
   if (params?.prodi_id) query.append("prodi_id", String(params.prodi_id));
 
+  const token = getToken();
   const response = await fetch(`${API_URL}/mahasiswa?${query.toString()}`, {
     cache: "no-store",
+    headers: token ? { "Authorization": `Bearer ${token}` } : {},
   });
 
   const result = await response.json();
@@ -75,8 +79,10 @@ export async function getMahasiswa(params?: {
 }
 
 export async function getProdi(): Promise<Prodi[]> {
+  const token = getToken();
   const response = await fetch(`${API_URL}/prodi`, {
     cache: "no-store",
+    headers: token ? { "Authorization": `Bearer ${token}` } : {},
   });
 
   const result = await handleResponse<Prodi[]>(response);
@@ -95,8 +101,10 @@ export async function createMahasiswa(
     formData.append("foto", payload.foto);
   }
 
+  const token = getToken();
   const response = await fetch(`${API_URL}/mahasiswa`, {
     method: "POST",
+    headers: token ? { "Authorization": `Bearer ${token}` } : {},
     body: formData,
   });
 
@@ -117,8 +125,10 @@ export async function updateMahasiswa(
     formData.append("foto", payload.foto);
   }
 
+  const token = getToken();
   const response = await fetch(`${API_URL}/mahasiswa/${id}`, {
     method: "PUT",
+    headers: token ? { "Authorization": `Bearer ${token}` } : {},
     body: formData,
   });
 
@@ -126,8 +136,10 @@ export async function updateMahasiswa(
 }
 
 export async function deleteMahasiswa(id: number): Promise<void> {
+  const token = getToken();
   const response = await fetch(`${API_URL}/mahasiswa/${id}`, {
     method: "DELETE",
+    headers: token ? { "Authorization": `Bearer ${token}` } : {},
   });
 
   await handleResponse(response);

@@ -6,9 +6,11 @@ type Props = {
   mahasiswa: Mahasiswa[];
   onEdit: (item: Mahasiswa) => void;
   onDelete: (id: number) => Promise<void>;
+  canEdit: boolean;
+  canDelete: boolean;
 };
 
-export default function MahasiswaTable({ mahasiswa, onEdit, onDelete }: Props) {
+export default function MahasiswaTable({ mahasiswa, onEdit, onDelete, canEdit, canDelete }: Props) {
   if (mahasiswa.length === 0) {
     return <p>Belum ada data mahasiswa.</p>;
   }
@@ -23,7 +25,7 @@ export default function MahasiswaTable({ mahasiswa, onEdit, onDelete }: Props) {
           <th>Nama</th>
           <th>Prodi</th>
           <th>Angkatan</th>
-          <th>Aksi</th>
+          {(canEdit || canDelete) && <th>Aksi</th>}
         </tr>
       </thead>
 
@@ -63,21 +65,27 @@ export default function MahasiswaTable({ mahasiswa, onEdit, onDelete }: Props) {
               <td>{item.nama}</td>
               <td>{item.nama_prodi || "Tidak ada prodi"}</td>
               <td>{item.angkatan}</td>
-              <td>
-                <div className="actions">
-                  <button className="btn-secondary" onClick={() => onEdit(item)}>
-                    Edit
-                  </button>
+              {(canEdit || canDelete) && (
+                <td>
+                  <div className="actions">
+                    {canEdit && (
+                      <button className="btn-secondary" onClick={() => onEdit(item)}>
+                        Edit
+                      </button>
+                    )}
 
-                  <button className="btn-danger" onClick={() => {
-                    if (confirm(`Apakah Anda yakin ingin menghapus mahasiswa ${item.nama}?`)) {
-                      onDelete(item.id);
-                    }
-                  }}>
-                    Hapus
-                  </button>
-                </div>
-              </td>
+                    {canDelete && (
+                      <button className="btn-danger" onClick={() => {
+                        if (confirm(`Apakah Anda yakin ingin menghapus mahasiswa ${item.nama}?`)) {
+                          onDelete(item.id);
+                        }
+                      }}>
+                        Hapus
+                      </button>
+                    )}
+                  </div>
+                </td>
+              )}
             </tr>
           );
         })}

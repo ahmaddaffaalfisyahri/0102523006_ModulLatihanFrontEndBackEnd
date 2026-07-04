@@ -47,6 +47,13 @@ async function handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
   const result = await response.json();
 
   if (!response.ok) {
+    if (response.status === 401) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+      }
+    }
     throw new Error(result.message || "Terjadi kesalahan saat mengakses API");
   }
 
@@ -73,6 +80,13 @@ export async function getMahasiswa(params?: {
 
   const result = await response.json();
   if (!response.ok) {
+    if (response.status === 401) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+      }
+    }
     throw new Error(result.message || "Terjadi kesalahan saat mengambil data");
   }
   return result as PaginatedMahasiswaResponse;

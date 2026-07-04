@@ -134,6 +134,11 @@ export default function MahasiswaPage() {
     );
   }
 
+  const userRole = user?.role;
+  const canCreateOrEdit = userRole === "admin" || userRole === "operator";
+  const canEdit = userRole === "admin" || userRole === "operator";
+  const canDelete = userRole === "admin";
+
   return (
     <main className="container" style={{ paddingBottom: "40px" }}>
       <div className="header">
@@ -161,12 +166,14 @@ export default function MahasiswaPage() {
       {message && <div className="message">{message}</div>}
       {error && <div className="message error">{error}</div>}
 
-      <MahasiswaForm
-        prodis={prodis}
-        selectedMahasiswa={selectedMahasiswa}
-        onSubmit={handleSubmit}
-        onCancelEdit={() => setSelectedMahasiswa(null)}
-      />
+      {canCreateOrEdit && (
+        <MahasiswaForm
+          prodis={prodis}
+          selectedMahasiswa={selectedMahasiswa}
+          onSubmit={handleSubmit}
+          onCancelEdit={() => setSelectedMahasiswa(null)}
+        />
+      )}
 
       <section className="card" style={{ marginTop: 20 }}>
         <div className="search-filter-container">
@@ -211,6 +218,8 @@ export default function MahasiswaPage() {
               mahasiswa={mahasiswa}
               onEdit={setSelectedMahasiswa}
               onDelete={handleDelete}
+              canEdit={canEdit}
+              canDelete={canDelete}
             />
 
             {/* Pagination Controls */}

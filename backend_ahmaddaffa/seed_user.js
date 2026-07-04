@@ -12,27 +12,35 @@ async function seedUser() {
     
     console.log("Connected to database 'kampus'");
     
-    const email = 'admin@example.com';
-    const password = 'password123';
-    const name = 'Admin Ahmad Daffa';
-    const role = 'admin';
-    
-    // Check if user already exists
-    const [rows] = await connection.query('SELECT id FROM users WHERE email = ?', [email]);
-    if (rows.length > 0) {
-      console.log("User already exists, updating password...");
-      const hashedPassword = await bcrypt.hash(password, 10);
-      await connection.query('UPDATE users SET password = ?, name = ? WHERE email = ?', [hashedPassword, name, email]);
-      console.log("User password updated.");
-    } else {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      await connection.query('INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)', [name, email, hashedPassword, role]);
-      console.log("User admin@example.com seeded successfully with password: password123");
+    const usersToSeed = [
+      { name: 'Admin Ahmad Daffa', email: 'admin@example.com', password: 'password123', role: 'admin' },
+      { name: 'Operator Ahmad Daffa', email: 'operator@example.com', password: 'password123', role: 'operator' },
+      { name: 'Viewer Ahmad Daffa', email: 'viewer@example.com', password: 'password123', role: 'viewer' }
+    ];
+
+    for (const u of usersToSeed) {
+      const [rows] = await connection.query('SELECT id FROM users WHERE email = ?', [u.email]);
+      const hashedPassword = await bcrypt.hash(u.password, 10);
+      
+      if (rows.length > 0) {
+        console.log(`User ${u.email} already exists, updating...`);
+        await connection.query(
+          'UPDATE users SET name = ?, password = ?, role = ? WHERE email = ?', 
+          [u.name, hashedPassword, u.role, u.email]
+        );
+        console.log(`User ${u.email} updated.`);
+      } else {
+        await connection.query(
+          'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)', 
+          [u.name, u.email, hashedPassword, u.role]
+        );
+        console.log(`User ${u.email} seeded successfully.`);
+      }
     }
     
     await connection.end();
   } catch (err) {
-    console.error("Error seeding user:", err);
+    console.error("Error seeding users:", err);
   }
 }
 
